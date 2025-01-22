@@ -189,3 +189,100 @@ WHERE m.country IN ('Germany', 'Italy')
 GROUP BY m.country
 ORDER BY total_votes DESC;
 
+/*16.	Which columns in the names table have null values?*/
+Select 'id' as id,count(*) As null_id
+from names
+where id is null
+union all
+Select 'name',count(*) As null_id
+from names
+where name is null
+union all
+Select 'Height',count(*) As null_id
+from names
+where height is null
+union all
+Select 'Date_of_birth',count(*) As null_id
+from names
+where Date_of_birth is null
+union all
+Select 'Known_for_movies',count(*) As null_id
+from names
+where Known_for_movies is null;
+
+/*17.	Who are the top two actors whose movies have a median rating >= 8?*/
+Select n.name,count(*) as totalmovies
+from names n
+join role_mapping ro on ro.name_id=n.id
+join ratings ra on ra.movie_id=ro.movie_id
+where ro.category='actor' and ra.median_rating>=8
+Group by n.name
+order by totalmovies DESC limit 2;
+
+/*18.	Which are the top three production houses based on the number of votes received by their movies?*/
+
+SELECT m.production_company, 
+SUM(total_votes) AS totalvotes
+FROM movie m
+JOIN ratings r on r.movie_id=m.id
+GROUP BY m.production_company
+ORDER BY totalvotes DESC limit 3;
+
+
+/*19.How many directors worked on more than three movies?*/
+
+Select n.name,count(n.id) As total_movies
+from names n
+join director_mapping d on d.name_id=n.id
+group by n.name
+having count(d.movie_id)>3
+order by total_movies DESC ;
+
+/*20.	Find the average height of actors and actresses separately.*/
+
+select r.category,avg(n.height)as avgheight
+from role_mapping r
+join names n on r.name_id=n.id
+group by  r.category
+order by avgheight DESC;
+
+/*21.	Identify the 10 oldest movies in the dataset along with its title, country, and director.*/
+
+Select m.title,m.country,n.name As director_name,date_published
+from movie m
+join director_mapping d on d.movie_id=m.id
+join names n on n.id=d.name_id
+order by m.date_published ASC, m.country limit 10;
+
+/*22.	List the top 5 movies with the highest total votes and their genres.*/
+
+Select m.title,g.genre,r.total_votes
+from movie m
+join genre g on g.movie_id=m.id
+join ratings r on r.movie_id=g.movie_id
+order by genre, total_votes DESC limit 5;
+
+/*23.	Find the movie with the longest duration, along with its genre and production company*/
+
+Select m.title,m.duration,g.genre,m.production_company
+from movie m
+join genre g on g.movie_id=m.id
+order by  duration desc limit 1;
+
+/*24.	Determine the total votes received for each movie released in 2018.*/
+
+Select m.title,sum(r.total_votes) As total_votes
+from movie m
+join ratings r on r.movie_id=m.id
+where m.year=2018
+group by m.title
+order by total_votes DESC;
+ 
+
+/*25.	Find the most common language in which movies were produced.*/
+
+SELECT languages, COUNT(*) AS Total_movies
+FROM movie
+GROUP BY languages
+ORDER BY Total_movies DESC
+LIMIT 1;
